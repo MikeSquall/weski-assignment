@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { AggregatedHotel, HotelOption, SKI_RESORTS } from '../types/hotel';
-import { useSearchStore } from '../store/searchStore';
 
 interface Props {
   hotel: AggregatedHotel;
+  skiSite: number;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -66,8 +66,7 @@ function OptionPill({ option }: { option: HotelOption }) {
   );
 }
 
-export function HotelCard({ hotel }: Props) {
-  const skiSite = useSearchStore((s) => s.skiSite);
+export function HotelCard({ hotel, skiSite }: Props) {
   const resort = SKI_RESORTS.find((r) => r.id === skiSite);
 
   return (

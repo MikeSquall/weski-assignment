@@ -1,11 +1,23 @@
 import { create } from 'zustand';
 import { Hotel } from '../types/hotel';
 
+export interface SearchSnapshot {
+  skiSite: number;
+  groupSize: number;
+  fromDate: string;
+  toDate: string;
+}
+
 interface SearchStore {
+  // Live form values — change as the user edits the form
   skiSite: number | null;
   groupSize: number;
   fromDate: string;
   toDate: string;
+
+  // Frozen at the moment Search is clicked — drives the results display
+  lastSearch: SearchSnapshot | null;
+
   hotels: Hotel[];
   isLoading: boolean;
   isSearched: boolean;
@@ -14,6 +26,7 @@ interface SearchStore {
   setGroupSize: (size: number) => void;
   setFromDate: (date: string) => void;
   setToDate: (date: string) => void;
+  setLastSearch: (snapshot: SearchSnapshot) => void;
   addHotel: (hotel: Hotel) => void;
   setLoading: (loading: boolean) => void;
   setSearched: (searched: boolean) => void;
@@ -25,6 +38,7 @@ export const useSearchStore = create<SearchStore>((set) => ({
   groupSize: 2,
   fromDate: '',
   toDate: '',
+  lastSearch: null,
   hotels: [],
   isLoading: false,
   isSearched: false,
@@ -33,6 +47,7 @@ export const useSearchStore = create<SearchStore>((set) => ({
   setGroupSize: (size) => set({ groupSize: size }),
   setFromDate: (date) => set({ fromDate: date }),
   setToDate: (date) => set({ toDate: date }),
+  setLastSearch: (snapshot) => set({ lastSearch: snapshot }),
   addHotel: (hotel) =>
     set((state) => ({
       hotels: [...state.hotels, hotel].sort(

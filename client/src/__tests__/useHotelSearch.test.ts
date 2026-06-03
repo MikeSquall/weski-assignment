@@ -34,6 +34,7 @@ const storeBase = {
   groupSize: 2,
   fromDate: '2025-12-01',
   toDate: '2025-12-12',
+  lastSearch: null,
   hotels: [],
   isLoading: false,
   isSearched: false,
@@ -55,6 +56,18 @@ describe('useHotelSearch', () => {
     act(() => result.current.search());
     expect(useSearchStore.getState().isLoading).toBe(true);
     expect(useSearchStore.getState().isSearched).toBe(true);
+  });
+
+  it('snapshots search params into lastSearch at submission time', () => {
+    const { result } = renderHook(() => useHotelSearch());
+    act(() => result.current.search());
+    const { lastSearch } = useSearchStore.getState();
+    expect(lastSearch).toEqual({
+      skiSite: 4,
+      groupSize: 2,
+      fromDate: '2025-12-01',
+      toDate: '2025-12-12',
+    });
   });
 
   it('clears previous results before starting a new search', () => {

@@ -16,14 +16,11 @@ export function ResultsList() {
   const hotels = useSearchStore((s) => s.hotels);
   const isLoading = useSearchStore((s) => s.isLoading);
   const isSearched = useSearchStore((s) => s.isSearched);
-  const skiSite = useSearchStore((s) => s.skiSite);
-  const groupSize = useSearchStore((s) => s.groupSize);
-  const fromDate = useSearchStore((s) => s.fromDate);
-  const toDate = useSearchStore((s) => s.toDate);
+  const lastSearch = useSearchStore((s) => s.lastSearch);
 
-  if (!isSearched) return null;
+  if (!isSearched || !lastSearch) return null;
 
-  const resort = SKI_RESORTS.find((r) => r.id === skiSite);
+  const resort = SKI_RESORTS.find((r) => r.id === lastSearch.skiSite);
   const aggregated = aggregateHotels(hotels);
   const count = aggregated.length;
 
@@ -35,14 +32,14 @@ export function ResultsList() {
       <p className="text-sm text-gray-500 mb-6">
         {count} ski trip{count !== 1 ? 's' : ''} options
         {resort && ` · ${resort.name}`}
-        {fromDate && toDate && ` · ${formatDate(fromDate)} – ${formatDate(toDate)}`}
-        {` · ${groupSize} ${groupSize === 1 ? 'person' : 'people'}`}
+        {` · ${formatDate(lastSearch.fromDate)} – ${formatDate(lastSearch.toDate)}`}
+        {` · ${lastSearch.groupSize} ${lastSearch.groupSize === 1 ? 'person' : 'people'}`}
         {isLoading && ' · loading more…'}
       </p>
 
       <div className="flex flex-col gap-4">
         {aggregated.map((hotel) => (
-          <HotelCard key={hotel.hotelCode} hotel={hotel} />
+          <HotelCard key={hotel.hotelCode} hotel={hotel} skiSite={lastSearch.skiSite} />
         ))}
       </div>
 

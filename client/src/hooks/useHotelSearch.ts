@@ -18,6 +18,7 @@ export function useHotelSearch() {
   const addHotel = useSearchStore((s) => s.addHotel);
   const setLoading = useSearchStore((s) => s.setLoading);
   const setSearched = useSearchStore((s) => s.setSearched);
+  const setLastSearch = useSearchStore((s) => s.setLastSearch);
   const clearResults = useSearchStore((s) => s.clearResults);
 
   const search = useCallback(() => {
@@ -25,6 +26,7 @@ export function useHotelSearch() {
 
     wsRef.current?.close();
     clearResults();
+    setLastSearch({ skiSite, groupSize, fromDate, toDate });
     setLoading(true);
     setSearched(true);
 
@@ -67,7 +69,7 @@ export function useHotelSearch() {
     ws.onclose = () => {
       if (wsRef.current === ws) setLoading(false);
     };
-  }, [skiSite, groupSize, fromDate, toDate, addHotel, setLoading, setSearched, clearResults]);
+  }, [skiSite, groupSize, fromDate, toDate, addHotel, setLoading, setSearched, setLastSearch, clearResults]);
 
   return { search };
 }
