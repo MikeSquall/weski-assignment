@@ -1,7 +1,7 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useSearchStore } from '../store/searchStore';
 
-const WS_URL = 'ws://localhost:3001';
+const WS_URL = import.meta.env.VITE_WS_URL ?? 'ws://localhost:3001';
 
 function toApiDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-');
@@ -19,6 +19,7 @@ export function useHotelSearch() {
   const setLoading = useSearchStore((s) => s.setLoading);
   const setSearched = useSearchStore((s) => s.setSearched);
   const setLastSearch = useSearchStore((s) => s.setLastSearch);
+  const setError = useSearchStore((s) => s.setError);
   const clearResults = useSearchStore((s) => s.clearResults);
 
   const search = useCallback(() => {
@@ -56,7 +57,11 @@ export function useHotelSearch() {
 
       if (msg.type === 'hotel') {
         addHotel(msg.payload);
-      } else if (msg.type === 'done' || msg.type === 'error') {
+      } else if (msg.type === 'done') {
+        setLoading(false);
+        ws.close();
+      } else if (msg.type === 'error') {
+        setError(msg.payload);
         setLoading(false);
         ws.close();
       }
@@ -69,7 +74,13 @@ export function useHotelSearch() {
     ws.onclose = () => {
       if (wsRef.current === ws) setLoading(false);
     };
-  }, [skiSite, groupSize, fromDate, toDate, addHotel, setLoading, setSearched, setLastSearch, clearResults]);
+  }, [skiSite, groupSize, fromDate, toDate, addHotel, setLoading, setSearched, setLastSearch, setError, clearResults]);
+
+  useEffect(() => {
+    return () => {
+      wsRef.current?.close();
+    };
+  }, []);
 
   return { search };
 }

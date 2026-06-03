@@ -26,6 +26,7 @@ const initial = {
   hotels: [],
   isLoading: false,
   isSearched: false,
+  error: null,
 };
 
 describe('searchStore', () => {
@@ -93,5 +94,16 @@ describe('searchStore', () => {
     expect(useSearchStore.getState().isLoading).toBe(true);
     useSearchStore.getState().setLoading(false);
     expect(useSearchStore.getState().isLoading).toBe(false);
+  });
+
+  it('setError stores the error message', () => {
+    useSearchStore.getState().setError('Search failed. Please try again.');
+    expect(useSearchStore.getState().error).toBe('Search failed. Please try again.');
+  });
+
+  it('clearResults resets error to null', () => {
+    useSearchStore.getState().setError('Something went wrong');
+    useSearchStore.getState().clearResults();
+    expect(useSearchStore.getState().error).toBeNull();
   });
 });

@@ -139,6 +139,35 @@ describe('useHotelSearch', () => {
     expect(useSearchStore.getState().isLoading).toBe(false);
   });
 
+  it('stores the error message from the server in the store', () => {
+    const { result } = renderHook(() => useHotelSearch());
+    act(() => result.current.search());
+    const ws = MockWebSocket.instances[0];
+    act(() => ws.onopen?.());
+    act(() => ws.emit({ type: 'error', payload: 'Search failed. Please try again.' }));
+
+    expect(useSearchStore.getState().error).toBe('Search failed. Please try again.');
+  });
+
+  it('clears the previous error when a new search starts', () => {
+    useSearchStore.setState({ error: 'Previous error' });
+    const { result } = renderHook(() => useHotelSearch());
+    act(() => result.current.search());
+
+    expect(useSearchStore.getState().error).toBeNull();
+  });
+
+  it('closes the WebSocket when the component unmounts mid-search', () => {
+    const { result, unmount } = renderHook(() => useHotelSearch());
+    act(() => result.current.search());
+    const ws = MockWebSocket.instances[0];
+    const closeSpy = vi.spyOn(ws, 'close');
+
+    unmount();
+
+    expect(closeSpy).toHaveBeenCalled();
+  });
+
   it('does not search when required fields are missing', () => {
     useSearchStore.setState({ skiSite: null });
     const { result } = renderHook(() => useHotelSearch());

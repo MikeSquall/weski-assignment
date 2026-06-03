@@ -31,6 +31,18 @@ npm start
 
 Then serve `client/dist/` with any static file server (nginx, `serve`, etc.) alongside the Node.js backend.
 
+**Environment variables**
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3001` | Port the Node.js server listens on |
+| `VITE_WS_URL` | `ws://localhost:3001` | WebSocket URL the client connects to — set this for production builds |
+
+Example production build:
+```bash
+VITE_WS_URL=wss://api.example.com npm run build
+```
+
 ## Testing
 
 ```bash

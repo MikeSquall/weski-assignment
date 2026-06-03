@@ -72,10 +72,17 @@ describe('ResultsList', () => {
     expect(document.querySelector('.animate-spin')).toBeNull();
   });
 
-  it('shows no-results message when search completes with empty list', () => {
-    useSearchStore.setState({ isSearched: true, isLoading: false });
+  it('shows no-results message when search completes with empty list and no error', () => {
+    useSearchStore.setState({ isSearched: true, isLoading: false, error: null });
     render(<ResultsList />);
     expect(screen.getByText(/No hotels found/)).toBeInTheDocument();
+  });
+
+  it('shows error banner instead of no-results message when error is set', () => {
+    useSearchStore.setState({ isSearched: true, isLoading: false, error: 'Search failed. Please try again.' });
+    render(<ResultsList />);
+    expect(screen.getByText('Search failed. Please try again.')).toBeInTheDocument();
+    expect(screen.queryByText(/No hotels found/)).toBeNull();
   });
 
   it('shows singular trip count for one result', () => {

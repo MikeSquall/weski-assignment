@@ -21,6 +21,7 @@ interface SearchStore {
   hotels: Hotel[];
   isLoading: boolean;
   isSearched: boolean;
+  error: string | null;
 
   setSkiSite: (id: number) => void;
   setGroupSize: (size: number) => void;
@@ -30,6 +31,7 @@ interface SearchStore {
   addHotel: (hotel: Hotel) => void;
   setLoading: (loading: boolean) => void;
   setSearched: (searched: boolean) => void;
+  setError: (message: string | null) => void;
   clearResults: () => void;
 }
 
@@ -42,6 +44,7 @@ export const useSearchStore = create<SearchStore>((set) => ({
   hotels: [],
   isLoading: false,
   isSearched: false,
+  error: null,
 
   setSkiSite: (id) => set({ skiSite: id }),
   setGroupSize: (size) => set({ groupSize: size }),
@@ -56,5 +59,6 @@ export const useSearchStore = create<SearchStore>((set) => ({
     })),
   setLoading: (loading) => set({ isLoading: loading }),
   setSearched: (searched) => set({ isSearched: searched }),
-  clearResults: () => set({ hotels: [], isSearched: false }),
+  setError: (message) => set({ error: message }),
+  clearResults: () => set({ hotels: [], isSearched: false, error: null }),
 }));
