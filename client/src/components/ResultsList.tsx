@@ -20,10 +20,11 @@ export function ResultsList() {
   const lastSearch = useSearchStore((s) => s.lastSearch);
   const error = useSearchStore((s) => s.error);
 
+  const aggregated = useMemo(() => aggregateHotels(hotels), [hotels]);
+
   if (!isSearched || !lastSearch) return null;
 
   const resort = SKI_RESORTS.find((r) => r.id === lastSearch.skiSite);
-  const aggregated = useMemo(() => aggregateHotels(hotels), [hotels]);
   const count = aggregated.length;
 
   return (
