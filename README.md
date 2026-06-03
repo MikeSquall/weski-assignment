@@ -68,15 +68,16 @@ npm run test:watch --workspace=weski-client
 | `powderwhite.provider.test.ts` | API request shaping, response mapping, `MainImage` selection, fallback to first image, non-OK error path |
 | `searchService.test.ts` | N/N+1/N+2 fan-out, cap at 10, partial failure recovery, multi-provider dispatch |
 
-**Client** (Vitest + jsdom + React Testing Library) — 45 tests across 5 suites:
+**Client** (Vitest + jsdom + React Testing Library) — 65 tests across 6 suites:
 
 | Suite | What's covered |
 |---|---|
-| `searchStore.test.ts` | Initial state, `addHotel` sort invariant, `clearResults`, `setLoading` |
-| `HotelCard.test.tsx` | All rendered fields, loading skeleton, no-image placeholder |
-| `ResultsList.test.tsx` | Pre-search blank, spinner lifecycle, empty state, result count, subtitle metadata |
+| `searchStore.test.ts` | Initial state, `addHotel` sort invariant, `clearResults`, `setLoading`, `setError`, error reset |
+| `aggregateHotels.test.ts` | Grouping by hotel code, option sort, `lowestPrice` tracking, mid-stream re-sort |
+| `HotelCard.test.tsx` | All rendered fields, option pills, loading skeleton, no-image placeholder |
+| `ResultsList.test.tsx` | Pre-search blank, spinner lifecycle, empty state, error banner, result count, subtitle pinned to last search |
 | `SearchBar.test.tsx` | Resort list rendered, store updates on field changes, loading button state |
-| `useHotelSearch.test.ts` | WebSocket lifecycle, date format conversion, hotel streaming, done/error handling, guard on missing fields |
+| `useHotelSearch.test.ts` | WebSocket lifecycle, date format conversion, hotel streaming, error message storage, unmount cleanup, guard on missing fields |
 
 ## Architecture
 
@@ -92,8 +93,9 @@ weski-assignment/
 │       └── index.ts               HTTP + WebSocket server (port 3001)
 └── client/                        React / Vite / Tailwind
     └── src/
-        ├── store/searchStore.ts   Zustand state (search params + results)
-        ├── hooks/useHotelSearch.ts WebSocket client, streams hotels
+        ├── store/searchStore.ts   Zustand state (search params, last search snapshot, results, error)
+        ├── hooks/useHotelSearch.ts WebSocket client, streams hotels, closes on unmount
+        ├── utils/aggregateHotels.ts Groups Hotel[] by hotelCode → AggregatedHotel[]
         └── components/            SearchBar, HotelCard, ResultsList
 ```
 
@@ -102,3 +104,4 @@ weski-assignment/
 - **Provider pattern** — `IHotelProvider` interface lets you add new providers (e.g. a second API) by implementing one class and registering it in `searchService`. Each provider owns its own response schema (`providers/<name>/schemas.ts`) so validation is scoped to the API it talks to; the shared `schemas/search.ts` only holds the WebSocket message contract.
 - **Parallel fan-out** — for a group size of N the server fires concurrent requests for N, N+1, and N+2 (capped at 10). Each resolved batch is pushed to the client immediately via WebSocket.
 - **Streaming sort** — the client inserts each arriving hotel in sorted-by-price order so the list is always correct even mid-load.
+- **Search snapshot** — at submission time the active filters are frozen into `lastSearch` in the store. The results display reads from this snapshot, so changing the form after searching does not mutate the visible destination, dates, or count.
