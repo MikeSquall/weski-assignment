@@ -4,7 +4,7 @@ import { ResultsList } from '../components/ResultsList';
 import { useSearchStore } from '../store/searchStore';
 import { Hotel } from '../types/hotel';
 
-function makeHotel(code: string): Hotel {
+function makeHotel(code: string, groupSize = 2): Hotel {
   return {
     hotelCode: code,
     hotelName: `Hotel ${code}`,
@@ -16,7 +16,7 @@ function makeHotel(code: string): Hotel {
     cityCenterDistance: '200m',
     priceAfterTax: 200,
     priceBeforeTax: 180,
-    groupSize: 2,
+    groupSize,
   };
 }
 
@@ -93,6 +93,15 @@ describe('ResultsList', () => {
     useSearchStore.setState({ isSearched: true, isLoading: true });
     render(<ResultsList />);
     expect(screen.getByText(/loading more/)).toBeInTheDocument();
+  });
+
+  it('counts unique hotels not individual records when the same hotel appears for multiple group sizes', () => {
+    useSearchStore.setState({
+      isSearched: true,
+      hotels: [makeHotel('A', 2), makeHotel('A', 3), makeHotel('B', 2)],
+    });
+    render(<ResultsList />);
+    expect(screen.getByText(/2 ski trips options/)).toBeInTheDocument();
   });
 
   it('renders a HotelCard for each hotel', () => {

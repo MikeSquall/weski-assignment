@@ -1,3 +1,22 @@
+export interface HotelOption {
+  groupSize: number;
+  beds: number;
+  priceAfterTax: number;
+  priceBeforeTax: number;
+}
+
+export interface AggregatedHotel {
+  hotelCode: string;
+  hotelName: string;
+  mainImage: string;
+  images: string[];
+  rating: number;
+  skiLiftDistance: string;
+  cityCenterDistance: string;
+  options: HotelOption[]; // sorted by groupSize ascending
+  lowestPrice: number;
+}
+
 export interface Hotel {
   hotelCode: string;
   hotelName: string;

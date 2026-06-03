@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Hotel, SKI_RESORTS } from '../types/hotel';
+import { AggregatedHotel, HotelOption, SKI_RESORTS } from '../types/hotel';
 import { useSearchStore } from '../store/searchStore';
 
 interface Props {
-  hotel: Hotel;
+  hotel: AggregatedHotel;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -28,7 +28,6 @@ function HotelImage({ src, alt }: { src: string; alt: string }) {
 
   return (
     <div className="relative w-72 h-52 flex-shrink-0 bg-gray-100">
-      {/* Skeleton shown while image is loading */}
       {hasSrc && !loaded && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       )}
@@ -43,7 +42,6 @@ function HotelImage({ src, alt }: { src: string; alt: string }) {
         />
       )}
 
-      {/* Shown when no src or image failed */}
       {!hasSrc && (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
           <svg className="w-10 h-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,6 +55,17 @@ function HotelImage({ src, alt }: { src: string; alt: string }) {
   );
 }
 
+function OptionPill({ option }: { option: HotelOption }) {
+  return (
+    <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full text-xs whitespace-nowrap">
+      <span className="text-gray-500">{option.beds} beds, up to {option.groupSize} {option.groupSize === 1 ? 'person' : 'people'}</span>
+      <span className="font-semibold text-gray-900">
+        €{option.priceAfterTax.toLocaleString('en-GB', { maximumFractionDigits: 0 })} / person
+      </span>
+    </span>
+  );
+}
+
 export function HotelCard({ hotel }: Props) {
   const skiSite = useSearchStore((s) => s.skiSite);
   const resort = SKI_RESORTS.find((r) => r.id === skiSite);
@@ -65,9 +74,8 @@ export function HotelCard({ hotel }: Props) {
     <div className="bg-white rounded-lg overflow-hidden flex border border-gray-200 hover:shadow-md transition-shadow">
       <HotelImage src={hotel.mainImage} alt={hotel.hotelName} />
 
-      {/* Details */}
       <div className="flex-1 p-5 flex justify-between min-w-0">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="text-base font-bold text-gray-900 leading-tight">
             {hotel.hotelName}
           </h3>
@@ -95,15 +103,18 @@ export function HotelCard({ hotel }: Props) {
             </span>
           </div>
 
-          <div className="mt-2 text-xs text-gray-400">
-            {hotel.beds} beds · room for {hotel.groupSize}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {hotel.options.map((opt) => (
+              <OptionPill key={opt.groupSize} option={opt} />
+            ))}
           </div>
         </div>
 
-        {/* Price */}
+        {/* Lowest price summary */}
         <div className="text-right flex flex-col justify-end shrink-0 ml-6">
+          <p className="text-xs text-gray-500 mb-0.5">from</p>
           <p className="text-xl font-bold text-gray-900">
-            £{hotel.priceAfterTax.toLocaleString('en-GB', { maximumFractionDigits: 0 })}
+            €{hotel.lowestPrice.toLocaleString('en-GB', { maximumFractionDigits: 0 })}
           </p>
           <p className="text-xs text-gray-500">per person</p>
         </div>

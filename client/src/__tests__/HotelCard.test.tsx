@@ -2,20 +2,22 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { HotelCard } from '../components/HotelCard';
 import { useSearchStore } from '../store/searchStore';
-import { Hotel } from '../types/hotel';
+import { AggregatedHotel } from '../types/hotel';
 
-const hotel: Hotel = {
+const hotel: AggregatedHotel = {
   hotelCode: 'TEST001',
   hotelName: 'Chalet Test',
   mainImage: 'https://example.com/img.jpg',
   images: ['https://example.com/img.jpg'],
   rating: 4,
-  beds: 3,
   skiLiftDistance: '250m',
   cityCenterDistance: '100m',
-  priceAfterTax: 350,
-  priceBeforeTax: 315,
-  groupSize: 2,
+  lowestPrice: 300,
+  options: [
+    { groupSize: 2, beds: 2, priceAfterTax: 300, priceBeforeTax: 270 },
+    { groupSize: 3, beds: 3, priceAfterTax: 350, priceBeforeTax: 315 },
+    { groupSize: 4, beds: 4, priceAfterTax: 400, priceBeforeTax: 360 },
+  ],
 };
 
 describe('HotelCard', () => {
@@ -48,9 +50,25 @@ describe('HotelCard', () => {
     expect(screen.getByText(/100m to center/)).toBeInTheDocument();
   });
 
-  it('renders price after tax', () => {
+  it('renders a pill for each room option', () => {
     render(<HotelCard hotel={hotel} />);
-    expect(screen.getByText(/£350/)).toBeInTheDocument();
+    expect(screen.getByText('2 people')).toBeInTheDocument();
+    expect(screen.getByText('3 people')).toBeInTheDocument();
+    expect(screen.getByText('4 people')).toBeInTheDocument();
+  });
+
+  it('renders the price for each option', () => {
+    render(<HotelCard hotel={hotel} />);
+    // €300 appears in both the pill and the summary; €350 and €400 only in pills
+    expect(screen.getAllByText('€300').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('€350')).toBeInTheDocument();
+    expect(screen.getByText('€400')).toBeInTheDocument();
+  });
+
+  it('renders the lowest price as the summary price with a "from" label', () => {
+    render(<HotelCard hotel={hotel} />);
+    expect(screen.getByText('from')).toBeInTheDocument();
+    expect(screen.getAllByText('€300').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders per person label', () => {
@@ -58,15 +76,8 @@ describe('HotelCard', () => {
     expect(screen.getByText('per person')).toBeInTheDocument();
   });
 
-  it('renders beds and group size info', () => {
-    render(<HotelCard hotel={hotel} />);
-    expect(screen.getByText(/3 beds/)).toBeInTheDocument();
-    expect(screen.getByText(/room for 2/)).toBeInTheDocument();
-  });
-
   it('shows image skeleton while image is loading', () => {
     render(<HotelCard hotel={hotel} />);
-    // Image src is set but onLoad hasn't fired in jsdom → skeleton visible
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 

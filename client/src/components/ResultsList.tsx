@@ -1,5 +1,6 @@
 import { useSearchStore } from '../store/searchStore';
 import { SKI_RESORTS } from '../types/hotel';
+import { aggregateHotels } from '../utils/aggregateHotels';
 import { HotelCard } from './HotelCard';
 
 function formatDate(iso: string): string {
@@ -23,6 +24,8 @@ export function ResultsList() {
   if (!isSearched) return null;
 
   const resort = SKI_RESORTS.find((r) => r.id === skiSite);
+  const aggregated = aggregateHotels(hotels);
+  const count = aggregated.length;
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
@@ -30,7 +33,7 @@ export function ResultsList() {
         Select your ski trip
       </h1>
       <p className="text-sm text-gray-500 mb-6">
-        {hotels.length} ski trip{hotels.length !== 1 ? 's' : ''} options
+        {count} ski trip{count !== 1 ? 's' : ''} options
         {resort && ` · ${resort.name}`}
         {fromDate && toDate && ` · ${formatDate(fromDate)} – ${formatDate(toDate)}`}
         {` · ${groupSize} ${groupSize === 1 ? 'person' : 'people'}`}
@@ -38,15 +41,12 @@ export function ResultsList() {
       </p>
 
       <div className="flex flex-col gap-4">
-        {hotels.map((hotel) => (
-          <HotelCard
-            key={`${hotel.hotelCode}-${hotel.groupSize}`}
-            hotel={hotel}
-          />
+        {aggregated.map((hotel) => (
+          <HotelCard key={hotel.hotelCode} hotel={hotel} />
         ))}
       </div>
 
-      {hotels.length === 0 && !isLoading && (
+      {count === 0 && !isLoading && (
         <p className="text-center text-gray-500 py-20">
           No hotels found for your search. Try adjusting the dates or destination.
         </p>
