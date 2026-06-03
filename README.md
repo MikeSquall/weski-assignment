@@ -87,6 +87,6 @@ weski-assignment/
 
 ### Key design decisions
 
-- **Provider pattern** — `IHotelProvider` interface lets you add new providers (e.g. a second API) by implementing one class and registering it in `searchService`.
+- **Provider pattern** — `IHotelProvider` interface lets you add new providers (e.g. a second API) by implementing one class and registering it in `searchService`. Each provider owns its own response schema (`providers/<name>/schemas.ts`) so validation is scoped to the API it talks to; the shared `schemas/search.ts` only holds the WebSocket message contract.
 - **Parallel fan-out** — for a group size of N the server fires concurrent requests for N, N+1, and N+2 (capped at 10). Each resolved batch is pushed to the client immediately via WebSocket.
 - **Streaming sort** — the client inserts each arriving hotel in sorted-by-price order so the list is always correct even mid-load.

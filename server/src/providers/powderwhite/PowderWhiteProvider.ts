@@ -1,6 +1,6 @@
 import { Hotel, SearchParams } from '../../types';
 import { IHotelProvider } from '../IHotelProvider';
-import { apiResponseSchema } from '../../schemas/search';
+import { apiResponseSchema } from './schemas';
 
 const API_URL =
   'https://gya7b1xubh.execute-api.eu-west-2.amazonaws.com/default/HotelsSimulator';
