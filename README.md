@@ -31,6 +31,41 @@ npm start
 
 Then serve `client/dist/` with any static file server (nginx, `serve`, etc.) alongside the Node.js backend.
 
+## Testing
+
+```bash
+# Run all tests (server + client)
+npm test
+
+# Run only server tests
+npm run test --workspace=weski-server
+
+# Run only client tests
+npm run test --workspace=weski-client
+
+# Watch mode (either workspace)
+npm run test:watch --workspace=weski-server
+npm run test:watch --workspace=weski-client
+```
+
+**Server** (Vitest, Node environment) — 18 tests across 3 suites:
+
+| Suite | What's covered |
+|---|---|
+| `schemas.test.ts` | Zod message validation — valid inputs, boundary violations, wrong types |
+| `powderwhite.provider.test.ts` | API request shaping, response mapping, `MainImage` selection, fallback to first image, non-OK error path |
+| `searchService.test.ts` | N/N+1/N+2 fan-out, cap at 10, partial failure recovery, multi-provider dispatch |
+
+**Client** (Vitest + jsdom + React Testing Library) — 45 tests across 5 suites:
+
+| Suite | What's covered |
+|---|---|
+| `searchStore.test.ts` | Initial state, `addHotel` sort invariant, `clearResults`, `setLoading` |
+| `HotelCard.test.tsx` | All rendered fields, loading skeleton, no-image placeholder |
+| `ResultsList.test.tsx` | Pre-search blank, spinner lifecycle, empty state, result count, subtitle metadata |
+| `SearchBar.test.tsx` | Resort list rendered, store updates on field changes, loading button state |
+| `useHotelSearch.test.ts` | WebSocket lifecycle, date format conversion, hotel streaming, done/error handling, guard on missing fields |
+
 ## Architecture
 
 ```
